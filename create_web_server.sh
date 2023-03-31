@@ -75,3 +75,48 @@ sleep 3
 
 INSTANCE_ID=`aws ec2 run-instances --image-id ami-0557a15b87f6559cf --count 1 --instance-type t2.micro --key-name demo-key --security-group-ids $SECURITY_GROUP_ID --block-device-mappings '[{"DeviceName":"/dev/xvda","Ebs":{"VolumeSize":8,"VolumeType":"gp2"}}]' --subnet-id $SUBNET_ID --region us-east-1 --query Instances[0].InstanceId --output text`
 echo CREATED INSTANCE ID IS - $INSTANCE_ID
+echo SLEEPING 5 MINUTES FOR CREATE AND RUN INSTANCE
+sleep 300
+
+#--------------------------------------get instance availability zone
+
+AVAILABILITY_ZONE_ID=`aws ec2 describe-instances --filters Name=vpc-id,Values=$VPC_ID --query 'Reservations[].Instances[].Placement.AvailabilityZone' --output text`
+echo $AVAILABILITY_ZONE_ID
+
+#--------------------------------------get instance os user
+
+OS_USER=ubuntu
+echo REMOTE SERVER USER IS $OS_USER
+
+#--------------------------------------giving public ssh key
+
+aws ec2-instance-connect send-ssh-public-key --instance-id $INSTANCE_ID --availability-zone $AVAILABILITY_ZONE_ID --instance-os-user $OS_USER --ssh-public-key file://~/.ssh/id_rsa.pub
+echo GIVED A PUBLIC KEY
+
+#--------------------------------------get public ip
+
+PUBLIC_IP=`aws ec2 describe-instances --filters Name=vpc-id,Values=$VPC_ID --query 'Reservations[].Instances[].PublicIpAddress' --output text`
+echo PUBLIC IP IS $PUBLIC_IP
+
+#--------------------------------------open ssh connection
+
+ssh -o "StrictHostKeyChecking no" -i ~/.ssh/id_rsa ${OS_USER}@${PUBLIC_IP} \
+'
+echo '' | sudo -S \
+sudo apt-get    update; \
+sudo apt install nginx; \
+sudo chmod 777 /var/www/html/index.nginx-debian.html; \
+sudo cat << _EOF_ > /var/www/html/index.nginx-debian.html;
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<p id="date"></p>
+<script>
+document.getElementById("date").innerHTML = Date()
+</script>
+</body>
+</html>
+_EOF_
+'	
