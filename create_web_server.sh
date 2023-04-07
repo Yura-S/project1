@@ -104,7 +104,7 @@ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/id_rsa ${OS_USER}@${PUBLIC_IP} \
 '
 echo '' | sudo -S \
 sudo apt-get    update; \
-sudo apt install nginx; \
+sudo apt -y install nginx; \
 sudo chmod 777 /var/www/html/index.nginx-debian.html; \
 sudo cat << _EOF_ > /var/www/html/index.nginx-debian.html;
 <!DOCTYPE html>

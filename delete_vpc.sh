@@ -9,7 +9,7 @@ echo start delete instance with instance id $INSTANCE_ID
 
 aws ec2 terminate-instances --instance-ids $INSTANCE_ID
 echo INSTANCE $INSTANCE_ID DELETED
-echo SLEEPING TWO MINUTES WHILE INSTANCE TERMINATEING
+echo SLEEPING TWO MINUTES WHILE INSTANCE TERMINATING
 sleep 120
 
 #--------------------------------------get security groups ids
