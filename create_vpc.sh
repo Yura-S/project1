@@ -66,12 +66,7 @@ sleep 3
 aws ec2 create-key-pair --key-name demo-key --output text --query "KeyMaterial" --region us-east-1 > ./demo-key.pem
 echo CREATED PAIRING KEY NAME IS - demo-key
 sleep 3
-#--------------------------------------chmod pair key
 
-chmod 400 ./demo-key.pem
-echo GIVING PERMISIONS TO PAIRING KEY FILE
-sleep 3
-#--------------------------------------create ec2
-
+#--------------------------------------create instance
 INSTANCE_ID=`aws ec2 run-instances --image-id ami-0557a15b87f6559cf --count 1 --instance-type t2.micro --key-name demo-key --security-group-ids $SECURITY_GROUP_ID --block-device-mappings '[{"DeviceName":"/dev/xvda","Ebs":{"VolumeSize":8,"VolumeType":"gp2"}}]' --subnet-id $SUBNET_ID --region us-east-1 --query Instances[0].InstanceId --output text`
 echo CREATED INSTANCE ID IS - $INSTANCE_ID

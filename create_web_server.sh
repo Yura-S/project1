@@ -1,15 +1,5 @@
 #!/bin/bash
 
-#--------------------------------------install cli
-#sudo apt install awscli
-#
-#--------------------------------------configure
-#aws configure  
-#
-#stex petqa mej@ lracnel` cat ~/.aws/credentials - tvyaler@ sranic. region@` us-east-1
-#
-#--------------------------------------create vpc
-
 VPC_ID=`aws ec2 create-vpc --cidr-block 10.0.0.0/16 --query Vpc.VpcId --output text`
 echo CREATED VPC ID IS - $VPC_ID
 sleep 3
@@ -75,12 +65,23 @@ sleep 3
 
 INSTANCE_ID=`aws ec2 run-instances --image-id ami-0557a15b87f6559cf --count 1 --instance-type t2.micro --key-name demo-key --security-group-ids $SECURITY_GROUP_ID --block-device-mappings '[{"DeviceName":"/dev/xvda","Ebs":{"VolumeSize":8,"VolumeType":"gp2"}}]' --subnet-id $SUBNET_ID --region us-east-1 --query Instances[0].InstanceId --output text`
 echo CREATED INSTANCE ID IS - $INSTANCE_ID
-echo SLEEPING 5 MINUTES FOR CREATE AND RUN INSTANCE
-sleep 300
+
+#--------------------------------------check instance status
+echo CHECKING INSTANCES STATES BEFORE CONTINUE
+CHECK=`aws ec2 describe-instance-status --instance-id $INSTANCE_ID --query InstanceStatuses[].SystemStatus[].Details[].Status --output text`
+while [ ! "$CHECK" = "passed" ]
+do
+  echo $CHECK `date`
+  CHECK=`aws ec2 describe-instance-status --instance-id $INSTANCE_ID --query InstanceStatuses[].SystemStatus[].Details[].Status --output text`
+  sleep 5
+done
+
+echo CREATED INSTANCE ID IS - $INSTANCE_ID
+
 
 #--------------------------------------get instance availability zone
 
-AVAILABILITY_ZONE_ID=`aws ec2 describe-instances --filters Name=vpc-id,Values=$VPC_ID --query 'Reservations[].Instances[].Placement.AvailabilityZone' --output text`
+AVAILABILITY_ZONE_ID=`aws ec2 describe-instances --instance-id $INSTANCE_ID --query 'Reservations[].Instances[].Placement.AvailabilityZone' --output text`
 echo $AVAILABILITY_ZONE_ID
 
 #--------------------------------------get instance os user
