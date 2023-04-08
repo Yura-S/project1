@@ -1,33 +1,30 @@
 #!/bin/bash
 
-#--------------------------------------get instance id
+#--------------------------------------delete instances
 
-INSTANCE_ID=`aws ec2 describe-instances --filters Name=vpc-id,Values=$1 --query 'Reservations[].Instances[].InstanceId' --output text`
-echo start delete instance with instance id $INSTANCE_ID
+INSTANCES_COUNT=`aws ec2 describe-instances --filters Name=vpc-id,Values=$1 --query 'Reservations[].Instances[].[InstanceId]' --output text | wc -l`
+INSTANCES=(`aws ec2 describe-instances --filters Name=vpc-id,Values=$1 --query 'Reservations[].Instances[].[InstanceId]' --output text`)
+echo INSTANCES COUNT IS $INSTANCES_COUNT
+for (( i=0; i<$INSTANCES_COUNT; i++ ))
+do
+aws ec2 terminate-instances --instance-ids ${INSTANCES[$i]}
+echo DELETING INSTANCE ${INSTANCES[$i]}
+done
 
-#--------------------------------------delete ec2
+#--------------------------------------sleep for terminate
 
-aws ec2 terminate-instances --instance-ids $INSTANCE_ID
-echo INSTANCE $INSTANCE_ID DELETED
-echo SLEEPING TWO MINUTES WHILE INSTANCE TERMINATING
+echo SLEEPING TWO MINUTES WHILE INSTANCES TERMINATING
 sleep 120
 
-#--------------------------------------get security groups ids
-
-SECURITY_GROUP_ID_1=`aws ec2 describe-security-groups --filters Name=vpc-id,Values=$1 --query 'SecurityGroups[0].GroupId' --output text`
-echo $SECURITY_GROUP_ID_1
-
-SECURITY_GROUP_ID_2=`aws ec2 describe-security-groups --filters Name=vpc-id,Values=$1 --query 'SecurityGroups[1].GroupId' --output text`
-echo $SECURITY_GROUP_ID_2
-
 #--------------------------------------delete security groups
-
-echo DELETING SECURITY GROUP $SECURITY_GROUP_ID_1
-aws ec2 delete-security-group --group-id $SECURITY_GROUP_ID_1
-sleep 3
-
-echo DELETING SECURITY GROUP $SECURITY_GROUP_ID_2
-aws ec2 delete-security-group --group-id $SECURITY_GROUP_ID_2
+SECURITY_GROUPS_COUNT=`aws ec2 describe-security-groups --filters Name=vpc-id,Values=$1 --query 'SecurityGroups[].[GroupId]' --output text | wc -l`
+SECURITY_GROUPS=(`aws ec2 describe-security-groups --filters Name=vpc-id,Values=$1 --query 'SecurityGroups[].[GroupId]' --output text`)
+echo SECURITY GROPEP COUNT IS $SECURITY_GROUPS_COUNT
+for (( i=0; i<$SECURITY_GROUPS_COUNT; i++ ))
+do
+aws ec2 delete-security-group --group-id ${SECURITY_GROUPS[$i]}
+echo DELETING SECURITY GROUP ${SECURITY_GROUPS[$i]}
+done
 sleep 3
 
 #--------------------------------------delete security key
@@ -36,33 +33,30 @@ aws ec2 delete-key-pair --key-name demo-key
 echo PAIRING KEY demo-key DELETED
 sleep 3
 
-#--------------------------------------get subnet id
+#--------------------------------------delete subnets
 
-SUBNET_ID=`aws ec2 describe-subnets --filters Name=vpc-id,Values=$1 --query Subnets[].SubnetId --output text`
-echo subnet id is $SUBNET_ID
+SUBNET_COUNT=`aws ec2 describe-subnets --filters Name=vpc-id,Values=$1 --query 'Subnets[].[SubnetId]' --output text | wc -l`
+SUBNETS=(`aws ec2 describe-subnets --filters Name=vpc-id,Values=$1 --query 'Subnets[].[SubnetId]' --output text`)
+echo SUBNETS COUNT IS $SUBNET_COUNT
 
-#--------------------------------------delete subnet
-
-aws ec2 delete-subnet --subnet-id $SUBNET_ID
-echo SUBNET $SUBNET_ID DELETED
+for (( i=0; i<$SUBNET_COUNT; i++ ))
+do
+aws ec2 delete-subnet --subnet-id ${SUBNETS[$i]}
+echo DELETING SUBNET ${SUBNETS[$i]}
+done
 sleep 3
-
-#--------------------------------------get route table id
-
-ROUTE_TABLE_ID_1=`aws ec2 describe-route-tables --filters Name=vpc-id,Values=$1 --query RouteTables[0].RouteTableId --output text`
-echo $ROUTE_TABLE_ID_1
-
-ROUTE_TABLE_ID_2=`aws ec2 describe-route-tables --filters Name=vpc-id,Values=$1 --query RouteTables[1].RouteTableId --output text`
-echo $ROUTE_TABLE_ID_2
 
 #--------------------------------------delete route tables
 
-echo DELETING ROUTE TABLE $ROUTE_TABLE_ID_1
-aws ec2 delete-route-table --route-table-id $ROUTE_TABLE_ID_1
-sleep 3
+ROUTE_TABLES_COUNT=`aws ec2 describe-route-tables --filters Name=vpc-id,Values=$1 --query 'RouteTables[].[RouteTableId]' --output text | wc -l`
+ROUTE_TABLES=(`aws ec2 describe-route-tables --filters Name=vpc-id,Values=$1 --query 'RouteTables[].[RouteTableId]' --output text`)
+echo ROUTE TABLES COUNT IS $ROUTE_TABLES_COUNT
 
-echo DELETING ROUTE TABLE $ROUTE_TABLE_ID_1
-aws ec2 delete-route-table --route-table-id $ROUTE_TABLE_ID_2
+for (( i=0; i<$ROUTE_TABLES_COUNT; i++ ))
+do
+aws ec2 delete-route-table --route-table-id ${ROUTE_TABLES[$i]}
+echo DELETING ROUTE TABLE ${ROUTE_TABLES[$i]}
+done
 sleep 3
 
 #--------------------------------------get internet gateway id
@@ -85,4 +79,4 @@ sleep 3
 #--------------------------------------delete vpc
 
 aws ec2 delete-vpc --vpc-id $1
-echo VPC $I DELETED
+echo VPC $1 DELETED
