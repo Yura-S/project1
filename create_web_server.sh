@@ -63,7 +63,7 @@ echo OPENING PORT 22 IN SECURITY GROUP
 sleep 3
 #--------------------------------------create key pair
 
-aws ec2 create-key-pair --key-name demo-key --output text --query "KeyMaterial" --region us-east-1 > ./demo-key.pem
+aws ec2 create-key-pair --key-name demo-key --output text --query "KeyMaterial" --region us-east-1
 echo CREATED PAIRING KEY NAME IS - demo-key
 sleep 3
 #--------------------------------------chmod pair key
