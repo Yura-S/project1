@@ -1,5 +1,23 @@
 #!/bin/bash
 
+#-------------------------------------check vpc
+if [ -z $1  ]; then
+        echo NOT GIVED VPC ID
+        exit 1
+fi
+
+ALL_VPCS_COUNT=(`aws ec2 describe-vpcs --query Vpcs[].[VpcId] --output text | wc -l`)
+ALL_VPCS=(`aws ec2 describe-vpcs --query Vpcs[].[VpcId] --output text`)
+for (( i=0; i<$ALL_VPCS_COUNT; i++ ))
+do
+if [ "${ALL_VPCS[$i]}" = "$1" ]; then
+        break
+elif [ $i -eq $((ALL_VPCS_COUNT - 1)) ]; then
+        echo VPC ID IS INCORRECT
+        exit 1
+fi
+done
+
 #--------------------------------------delete instances
 
 INSTANCES_COUNT=`aws ec2 describe-instances --filters Name=vpc-id,Values=$1 --query 'Reservations[].Instances[].[InstanceId]' --output text | wc -l`
