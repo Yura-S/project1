@@ -65,5 +65,4 @@ sleep 3
 
 aws ec2 create-key-pair --key-name demo-key --output text --query "KeyMaterial" --region us-east-1 > ./demo-key.pem
 echo CREATED PAIRING KEY NAME IS - demo-key
-sleep 3
 
