@@ -60,7 +60,7 @@ echo OPENING PORT 80 IN SECURITY GROUP
 sleep 3
 aws ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr 0.0.0.0/0 --region us-east-1
 echo OPENING PORT 22 IN SECURITY GROUP
-sleep 3
+sleep 4
 #--------------------------------------create key pair
 
 aws ec2 create-key-pair --key-name demo-key --output text --query "KeyMaterial" --region us-east-1 > ./demo-key.pem
