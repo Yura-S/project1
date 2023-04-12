@@ -10,6 +10,8 @@
 #
 #--------------------------------------create vpc
 
+function CreateVpc(){
+
 VPC_ID=`aws ec2 create-vpc --cidr-block 10.0.0.0/16 --query Vpc.VpcId --output text`
 echo CREATED VPC ID IS - $VPC_ID
 sleep 3
@@ -47,3 +49,5 @@ sleep 3
 
 aws ec2 associate-route-table --route-table-id $ROUTE_TABLE_ID --region us-east-1 --subnet-id $SUBNET_ID
 echo ROUTE IS ASSOCIATED TO SUBNET
+
+}

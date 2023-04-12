@@ -1,5 +1,7 @@
 #!/bin/bash
 
+function DeleteVpc(){
+
 #-------------------------------------check vpc
 if [ -z $1  ]; then
         echo NOT GIVED VPC ID
@@ -98,3 +100,5 @@ sleep 3
 
 aws ec2 delete-vpc --vpc-id $1
 echo VPC $1 DELETED
+
+}

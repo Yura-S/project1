@@ -1,5 +1,7 @@
 #!/bin/bash
 
+function CreateVpcAndWebServer(){
+
 VPC_ID=`aws ec2 create-vpc --cidr-block 10.0.0.0/16 --query Vpc.VpcId --output text`
 echo CREATED VPC ID IS - $VPC_ID
 sleep 3
@@ -121,3 +123,5 @@ document.getElementById("date").innerHTML = Date()
 </html>
 _EOF_
 '	
+
+}

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+function CreateWebServer(){
+
 #--------------------------------------check gived subnet_id
 if [ -z $1 ]; then
 	echo NOT GIVED SUBNET ID
@@ -92,3 +94,5 @@ document.getElementById("date").innerHTML = Date()
 </html>
 _EOF_
 '
+
+}
